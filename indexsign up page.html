@@ -6,98 +6,172 @@
     <title>Email Sign-Up Page</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f9;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             margin: 0;
             padding: 0;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
-        }
-        .signup-container {
-            background: #fff;
-            padding: 20px 40px;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            text-align: center;
-        }
-        .signup-container h1 {
-            font-size: 24px;
-            margin-bottom: 20px;
             color: #333;
         }
-        .signup-container form {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
+
+        .signup-container {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            width: 400px;
+            text-align: center;
+            backdrop-filter: blur(10px);
         }
-        .signup-container input[type="email"] {
-            padding: 10px;
+
+        h1 {
+            color: #2d3748;
+            font-size: 28px;
+            margin-bottom: 30px;
+            font-weight: 600;
+        }
+
+        .step-indicator {
+            color: #4a5568;
             font-size: 16px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
+            margin: 15px 0;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        input {
+            width: 100%;
+            padding: 15px;
+            margin: 10px 0;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            box-sizing: border-box;
+        }
+
+        input:focus {
+            border-color: #667eea;
             outline: none;
-            transition: border-color 0.3s;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
-        .signup-container input[type="email"]:focus {
-            border-color: #007BFF;
-        }
-        .signup-container button {
-            padding: 10px;
-            font-size: 16px;
-            background-color: #007BFF;
+
+        button {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border: none;
-            border-radius: 4px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
             cursor: pointer;
-            transition: background-color 0.3s;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            margin: 15px 0;
         }
-        .signup-container button:hover {
-            background-color: #0056b3;
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
         }
-        .signup-container p {
+
+        button:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
+        .email-confirm-container, .verification-container {
+            display: none;
+            margin-top: 20px;
+            padding: 20px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.9);
+        }
+
+        p {
+            color: #718096;
             font-size: 14px;
-            color: #666;
-            margin-top: 10px;
+            line-height: 1.5;
+            margin-top: 20px;
         }
-        /* Success Page Styles */
-        .success-container {
-            background: #fff;
-            padding: 20px 40px;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+
+        .verification-input {
+            letter-spacing: 3px;
+            font-size: 20px;
             text-align: center;
         }
-        .success-container h1 {
-            color: #28a745;
-            margin-bottom: 20px;
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
-        .success-container p {
-            color: #666;
-            margin-bottom: 20px;
-        }
-        .back-button {
-            padding: 10px 20px;
-            background-color: #007BFF;
-            color: white;
-            text-decoration: none;
-            border-radius: 4px;
-            transition: background-color 0.3s;
-        }
-        .back-button:hover {
-            background-color: #0056b3;
+
+        .email-confirm-container.show, .verification-container.show {
+            display: block;
+            animation: fadeIn 0.5s ease forwards;
         }
     </style>
 </head>
 <body>
     <div class="signup-container">
-        <h1>Sign Up for Our Newsletter</h1>
-        <form action="success.html" method="GET">
-            <input type="email" placeholder="Enter your email" required>
-            <button type="submit">Sign Up</button>
+        <h1>Welcome to NabShop</h1>
+        <div class="step-indicator">Step 1: Enter Email</div>
+        <form id="signupForm" onsubmit="showEmailConfirmation(event)">
+            <input type="email" id="initialEmail" placeholder="Enter your email" required>
+            <button type="submit">Continue</button>
         </form>
-        <p>We respect your privacy. Unsubscribe at any time.</p>
+
+        <div class="email-confirm-container" id="emailConfirmContainer">
+            <div class="step-indicator">Step 2: Confirm Email</div>
+            <input type="email" id="confirmEmail" placeholder="Re-enter your email">
+            <button onclick="validateEmails()">Send Verification Code</button>
+        </div>
+        
+        <div class="verification-container" id="verificationContainer">
+            <div class="step-indicator">Step 3: Verify</div>
+            <p>Enter verification code</p>
+            <input type="text" class="verification-input" id="verificationCode" placeholder="Enter code" maxlength="4">
+            <button onclick="checkCode()">Complete Verification</button>
+        </div>
+        
+        <p>Join our community of happy shoppers!</p>
     </div>
+
+    <script>
+        function showEmailConfirmation(event) {
+            event.preventDefault();
+            const container = document.getElementById('emailConfirmContainer');
+            container.style.display = 'block';
+            container.classList.add('show');
+            document.getElementById('signupForm').querySelector('button').disabled = true;
+        }
+
+        function validateEmails() {
+            const initialEmail = document.getElementById('initialEmail').value;
+            const confirmEmail = document.getElementById('confirmEmail').value;
+
+            if (initialEmail === confirmEmail) {
+                const container = document.getElementById('verificationContainer');
+                container.style.display = 'block';
+                container.classList.add('show');
+                document.getElementById('emailConfirmContainer').querySelector('button').disabled = true;
+            } else {
+                alert('Emails do not match. Please try again.');
+            }
+        }
+
+        function checkCode() {
+            const code = document.getElementById('verificationCode').value;
+            if (code === '1234') {
+                window.location.href = ' https://kartar20.github.io/nabshop/';
+            } else {
+                alert('Invalid code. Please try again.');
+            }
+        }
+    </script>
 </body>
 </html>
